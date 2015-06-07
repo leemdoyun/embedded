@@ -1,0 +1,360 @@
+<!DOCTYPE HTML>
+<html>
+<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script type="text/javascript">
+var total_len = 0;
+$(document).ready(function(){
+
+	//document.getElementById("cal").value= new Date().toDateInputValue();
+	jQuery.post('http://115.68.116.250/embedded/get_class.php', { }, function( callback ) {
+                        $(callback).each(function(){
+                                var classname = this.cname;
+                                var cno = this.cno;
+                                var html = "<option value='"+cno+"'>"+classname+"</option>";
+                                document.getElementById("class_select").innerHTML += html;
+                        });
+
+                }, "json");
+	document.getElementById('cal').value = $.datepicker.formatDate('yy-mm-dd', new Date());
+});
+
+function select(){
+	var cno = document.getElementById('class_select').value;
+	var day =  document.getElementById('cal').value;
+	var flag = true;
+	if(cno != 0){
+		var num = 1;
+        jQuery.post('http://115.68.116.250/embedded/get_student.php', {cno:cno,day:day }, function( callback ) {
+			document.getElementById("memberbody").innerHTML = "";
+                        $(callback).each(function(){
+                                var html;
+				var result = this.result;
+				if(result == "ok"){
+					var department = this.department;
+                	                var sno = this.sno;
+        	                        var stnum = this.stnum;
+	                                var stname = this.stname;
+
+                                        if(num%2 == 1)       //<input type="image" src='plus.png' border='0'>
+                                                html  = "<tr class='odd' id='tr"+sno+"'><th class='nos' scope='row'>"+num+"</th><td class='date1' id='membernum"+sno+"'>"+stnum+"</td><td class='desc' id='name"+sno+"'>"+stname+"</td><td class='monitor' id='monitor"+sno+"'>결석</td></tr>";
+                                        else
+                                                html  = "<tr id='tr"+sno+"'><th class='nos'>"+num+"</th><td class='date1' id='membernum"+sno+"'>"+stnum+"</td><td class='desc' id='name"+sno+"'>"+stname+"</td><td class='monitor' id='monitor"+sno+"'>결석</td></tr>";
+
+           	                     if(num==1){
+                	                        document.getElementById("memberbody").innerHTML = html;
+                        	        }
+      	                             else
+        	                                document.getElementById("memberbody").innerHTML += html;
+
+                	                num++;
+					
+				}
+				else if(result == "over"){
+					var start = this.start;
+                                	var end = this.end;
+					flag = false;
+					alert("수강 기간이 아닙니다.("+start+" ~ "+end+")");
+				}
+				else{
+					flag = false;
+					alert("수강생이 없습니다.");
+				}
+
+                        });
+			if(flag)
+				cal();
+			
+
+                }, "json");
+
+	}
+	else{
+		 document.getElementById("memberbody").innerHTML = "";
+	}
+}
+function selects(){
+	var cno = document.getElementById('class_select').value;
+	var day =  document.getElementById('cal').value;
+	var flag = true;
+	if(cno != 0){
+		var num = 1;
+        jQuery.post('http://115.68.116.250/embedded/get_student.php', {cno:cno,day:day }, function( callback ) {
+			document.getElementById("memberbody").innerHTML = "";
+                        $(callback).each(function(){
+                                var html;
+				var result = this.result;
+				if(result == "ok"){
+					var department = this.department;
+                	                var sno = this.sno;
+        	                        var stnum = this.stnum;
+	                                var stname = this.stname;
+
+                                        if(num%2 == 1)       //<input type="image" src='plus.png' border='0'>
+                                                html  = "<tr class='odd' id='tr"+sno+"'><th class='nos' scope='row'>"+num+"</th><td class='date1' id='membernum"+sno+"'>"+stnum+"</td><td class='desc' id='name"+sno+"'>"+stname+"</td><td class='monitor' id='monitor"+sno+"'>결석</td></tr>";
+                                        else
+                                                html  = "<tr id='tr"+sno+"'><th class='nos'>"+num+"</th><td class='date1' id='membernum"+sno+"'>"+stnum+"</td><td class='desc' id='name"+sno+"'>"+stname+"</td><td class='monitor' id='monitor"+sno+"'>결석</td></tr>";
+
+           	                     if(num==1){
+                	                        document.getElementById("memberbody").innerHTML = html;
+                        	        }
+      	                             else
+        	                                document.getElementById("memberbody").innerHTML += html;
+
+                	                num++;
+					
+				}
+				else if(result == "over"){
+					var start = this.start;
+                                	var end = this.end;
+					flag = false;
+					alert("수강 기간이 아닙니다.("+start+" ~ "+end+")");
+				}
+				else{
+					flag = false;
+					alert("수강생이 없습니다.");
+				}
+
+                        });
+			if(flag)
+				cal();
+			
+
+                }, "json");
+
+	}
+	else{
+		 document.getElementById("memberbody").innerHTML = "";
+	}
+}
+
+function cal(){
+
+	var day =  document.getElementById('cal').value;
+	var cno = document.getElementById('class_select').value;
+
+	jQuery.post('http://115.68.116.250/embedded/get_arrive.php', {cno:cno,day:day }, function( callback ) {
+			$(callback).each(function(){
+                                var html;
+                                var arrive = this.arrive_time;
+				var sno = this.sno;
+				html  = document.getElementById("monitor"+sno).innerHTML;
+				if(html == "결석"){
+					document.getElementById("monitor"+sno).innerHTML = arrive;
+				}
+				else{
+					document.getElementById("monitor"+sno).innerHTML += "<br>"+arrive;
+				}
+                        });
+
+		}, "json");
+
+	
+	
+}
+
+function show_student(){
+ 	var select = document.getElementById("class_select"); 	
+	var cno = select.options[select.selectedIndex].value; 
+	var num = 1;
+	jQuery.post('http://115.68.116.250/embedded/get_student.php', {cno:cno }, function( callback ) {
+			$(callback).each(function(){
+                                var html;
+				var department = this.department;
+                                var sno = this.sno;
+                                var stnum = this.stnum;
+				var stname = this.stname;
+                                        if(num%2 == 1)       //<input type="image" src='plus.png' border='0'>
+                                                html  = "<tr class='odd' id='tr"+sno+"'><th class='no'>"+num+"</th><td class='date1' id='membernum"+sno+"'>"+stnum+"</td><td class='desc' id='name"+sno+"'>"+stname+"</td><td class='monitor' id='monitor"+sno+"'>sss</td></tr>";
+                                        else
+                                                html  = "<tr id='tr"+sno+"'><th class='no'>"+num+"</th><td class='date1' id='membernum"+sno+"'>"+stnum+"</td><td class='desc' id='name"+sno+"'>"+stname+"</td><td class='monitor' id='monitor"+sno+"'>결석</td></tr>";
+
+				if(num==1){
+                                        document.getElementById("memberbody").innerHTML = html;
+				}
+				else
+					document.getElementById("memberbody").innerHTML += html;
+				num++;
+			});
+
+                }, "json");
+
+}
+</script>
+
+
+<head>
+
+<style type="text/css">
+table.membertable {width:55%; margin:0 auto; text-align:right; border-collapse:collapse}
+.membertable th, .ex1 td {padding:5px 10px}
+.membertable caption {font-weight:700; font-size:20px; padding:5px; color:#1BA6B2; text-align:left; margin-bottom:5px}
+.membertable thead {font:"Comic Sans MS", cursive; font-size:15px}
+.membertable thead th.start {background:#ABC668; color:#fff; text-align:center; border-right:1px solid #fff}
+.membertable tbody th.start {text-align:center; width:3%}
+.membertable tbody th.top {text-align:center; width:3%}
+.membertable tbody th.nos {text-align:center; width:10%}
+.membertable tbody td.date1 {text-align:center; width:20%}
+.membertable tbody td.desc {text-align:center; width:40%}
+.membertable tbody td.monitor {text-align:center; width:30%}
+.membertable tbody tr.odd {background:#f9f9f9}
+.membertable tbody tr.odd th {background:#f2f2f2}
+.membertable tbody tr:hover {background:#F3F5BB}
+.membertable tbody tr:hover th {background:#F2F684; color:#1BA6B2}
+
+.floating {
+ background-color:#f3f3f3;
+ border:0.5px solid #707070;
+ }
+
+#floating {
+ position: fixed;
+right: 50%;
+top: 180px;
+margin-right: -615px;
+ text-align:center;
+ width:75px;
+border-radius: 5px 5px 5px 5px;
+-moz-border-radius: 5px 5px 5px 5px;
+-khtml-border-radius: 5px 5px 5px 5px;
+-webkit-border-radius: 5px 5px 5px 5px;
+
+}
+
+.container {width: 960px; margin: 0 auto; overflow: hidden;}
+
+#content {      float: left; width: 100%;}
+
+#mask {
+        display: none;
+        background: #000;
+        position: fixed; left: 0; top: 0;
+        z-index: 10;
+        width: 100%; height: 100%;
+        opacity: 0.8;
+        z-index: 999;
+}
+
+.member_add-popup{
+        display:none;
+        background: #ddd;
+        padding: 10px;
+        border: 2px solid #ddd;
+        float: left;
+        font-size: 1.2em;
+        position: fixed;
+        top: 50%; left: 50%;
+        z-index: 99999;
+        box-shadow: 0px 0px 20px #999;
+        -moz-box-shadow: 0px 0px 20px #999; /* Firefox */
+    -webkit-box-shadow: 0px 0px 20px #999; /* Safari, Chrome */
+        border-radius:3px 3px 3px 3px;
+    -moz-border-radius: 3px; /* Firefox */
+    -webkit-border-radius: 3px; /* Safari, Chrome */
+}
+
+img.btn_close {
+        float: right;
+        margin: -28px -28px 0 0;
+}
+
+fieldset {
+        border:none;
+}
+
+form.signup .textbox label {
+        display:block;
+        padding-bottom:7px;
+}
+
+form.signup .textbox span {
+        display:block;
+}
+
+form.signup p, form.signup span {
+        color:#222;
+        font-size:11px;
+        line-height:18px;
+}
+
+form.signup .textbox input {
+        background:#666666;
+        border-bottom:1px solid #333;
+        border-left:1px solid #000;
+        border-right:1px solid #333;
+        border-top:1px solid #000;
+        color:#fff;
+        border-radius: 3px 3px 3px 3px;
+        -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+        font:13px Arial, Helvetica, sans-serif;
+        padding:6px 6px 4px;
+        width:200px;
+}
+
+form.signup input:-moz-placeholder { color:#bbb; text-shadow:0 0 2px #000; }
+form.signup input::-webkit-input-placeholder { color:#bbb; text-shadow:0 0 2px #000;  }
+
+.button {
+        background: -moz-linear-gradient(center top, #f3f3f3, #dddddd);
+        background: -webkit-gradient(linear, left top, left bottom, from(#f3f3f3), to(#dddddd));
+        background:  -o-linear-gradient(top, #f3f3f3, #dddddd);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f3f3f3', EndColorStr='#dddddd');
+        border-color:#000;
+        border-width:1px;
+        border-radius:4px 4px 4px 4px;
+        -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+        color:#333;
+        cursor:pointer;
+        display:inline-block;
+        padding:6px 6px 4px;
+        margin-top:10px;
+        font:12px;
+        width:214px;
+}
+
+.button:hover { background:#ddd; }
+
+
+</style>
+
+<meta charset="utf-8">
+<title>Embedded</title>
+</head>
+<body>
+<center>
+	<h1>Embedded student attendance book</h1>
+</center>
+<br>
+<div>
+<table class="membertable">
+    
+    <thead>
+	 <tr>
+            <th scope="col" ></th>
+            <th scope="col" ></th>
+            <th scope="col" ><center><input type="date" id="cal" min="2015-01-01" max="2020-08-31" step=1  onchange="selects()"/></center></th>
+            <th scope="col" >
+		<select name = "clas_select" id = "class_select" onchange="select()">
+        		<option value="0">강좌 선택</option>
+		</select>
+	    </th>
+        </tr>
+
+        <tr>
+            <th scope="col" class="start">NO</th>
+	    <th scope="col" class="start">MEMBERNUM</th>
+            <th scope="col" class="start">NAME</th>
+            <th scope="col" class="start">CHECK</th>
+        </tr>
+    </thead>
+
+    <tbody id="memberbody">
+    </tbody>
+</table>
+
+</div>
+</body>
+</html>
+

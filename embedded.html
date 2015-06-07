@@ -1,0 +1,137 @@
+<!DOCTYPE HTML>
+<html>
+<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	if("<?php echo $_GET['uid']; ?>" == "")
+		alert("비정상 접근!");
+	else{
+		jQuery.post('http://115.68.116.250/embedded/class_list.php', { }, function( callback ) {
+			$(callback).each(function(){
+				var classname = this.name
+				var cno = this.cno
+				var html = "<option value='"+cno+"'>"+classname+"</option>";
+				document.getElementById("class_select").innerHTML += html;
+			});	
+                   
+        	}, "json");
+
+	}
+});
+
+function add_student(){
+	var stname = document.getElementById("stuname").value;
+        var stnum = document.getElementById("stnumber").value;
+	var stphone = document.getElementById("phone").value;
+        var stdept = document.getElementById("dep").value;
+	var uid = "<?php echo $_GET['uid']; ?>";
+	var select = document.getElementById("class_select");
+	var cno = select.options[select.selectedIndex].value;
+	
+	jQuery.post('http://115.68.116.250/embedded/add_student.php', {stname:stname, stnum:stnum,stphone:stphone,stdept:stdept,uid:uid,cno:cno }, function( callback ) {
+
+                        if(callback.result == "ok"){
+                                        alert("학생을 추가하였습니다.");
+                                        location.reload();
+                        }
+                        else{
+                                        alert("고유번호가 중복되거나 잘못 기입하였습니다.");
+                        }
+
+        }, "json");
+}
+</script>
+
+
+
+<head>
+<meta charset="utf-8">
+<title>학생등록 페이지</title>
+<style type="text/css">
+body {
+	background-image:url(back.jpg);
+	background-size:100%;
+	background-repeat:repeat-n;
+}
+
+img{
+	padding:5px;
+	border:3px solid black;
+	width:110px;
+	height:110px;
+}
+
+.login_box {
+	margin:10px;
+	border:2px solid #666666;
+	border-radius:10px;
+	width:180px;
+	height:350px;
+	padding:50px;
+	margin-left:35%;
+	margin-right:40%;
+}
+
+label {
+	width:50px;
+	display:block;
+	flot:left;
+	margin:5px;	
+}
+
+input {
+	border:1px solid #333333;
+	width:150px;
+	height:20px;
+}
+
+input:focus {
+	background-color:#FC0;
+	border:1px solid #000;
+	color:#333333;
+}
+
+.btn a {
+	margin:7px 7px 7px 20px;
+	display:block;
+	padding:10px;
+	text-align:center;
+	width:100px;
+	border:1px solid #333;
+	text-decoration:none;
+	border-radius:5px;
+	background-color: #FC3;
+	color: #333;
+	box-shadow:3px 3px 3px #999999;
+}
+
+.btn a:hover {  /* 버튼에 마우스 오버 할 경우 액션 */
+	background-color:#FF6633;
+	color:#FFF;
+}
+.btn a:active { /* 버튼 클리할 때 액션*/
+	box-shadow:none;
+}
+</style>
+</head>
+<body>
+<img src="pro.jpg" width="250" height="190" align="center">
+<div class ="login_box";> 학생등록하기<br><br>
+<form>
+<label>학과</label><input id="dep" name="department" type="text">
+<label>학번</label><input id="stnumber"  name="number" type="text">
+<label>H.P</label><input id="phone" name="phone" type="text">
+<label>성명</label><input id="stuname" name="name" type="text">
+<label>강좌</label>
+<select name = "clas_select" id = "class_select">
+</select>
+
+<form>
+<br>
+<span class="btn"><a href="#" onClick="add_student()"> 등록하기</a></span>
+</div>
+<div class="box2"; style=margin:auto;>
+</div>
+</body>
+</html>
